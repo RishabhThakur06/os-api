@@ -7,7 +7,9 @@ const app = express();
 app.get("/", (req, res) => {
     res.send(`
         <h1>OS Lab API</h1>
-        <p>Use endpoints like:</p>
+
+        <h3>Available Endpoints</h3>
+
         <ul>
             <li>/lab/lab1</li>
             <li>/lab/lab2a</li>
@@ -26,12 +28,19 @@ app.get("/", (req, res) => {
 app.get("/lab/:name", (req, res) => {
     const name = req.params.name;
 
-    const filePath = path.join(__dirname, "labs", `${name}.c`);
+    const filePath = path.join(
+        process.cwd(),
+        "labs",
+        `${name}.c`
+    );
+
+    console.log("Trying:", filePath);
 
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({
             success: false,
-            error: "File not found"
+            error: "File not found",
+            searched: filePath
         });
     }
 
@@ -39,7 +48,10 @@ app.get("/lab/:name", (req, res) => {
 
     code = code.replace(/\r\n/g, "\n");
 
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader(
+        "Content-Type",
+        "text/plain; charset=utf-8"
+    );
 
     res.send(code);
 });
