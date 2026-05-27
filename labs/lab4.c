@@ -1,98 +1,83 @@
-#include <stdio.h>
-
-struct Process
-{
-    int pid;
-    int burstTime;
-    int remainingTime;
-    int waitingTime;
-    int turnaroundTime;
-};
+#include<stdio.h>
 
 int main()
 {
-    int n, timeQuantum;
-    int totalWaitingTime = 0;
-    int totalTurnaroundTime = 0;
-    int time = 0;
-    int completed = 0;
+    int i, limit, total = 0, x, counter = 0, time_quantum;
+    int wait_time = 0, turnaround_time = 0, arrival_time[10], burst_time[10], temp[10];
+    float average_wait_time, average_turnaround_time;
 
-    printf("Enter number of processes: ");
-    scanf("%d", &n);
+    printf("\nEnter Total Number of Processes:");
+    scanf("%d", &limit);
 
-    struct Process p[n];
+    x = limit;
 
-    for (int i = 0; i < n; i++)
+    for(i = 0; i < limit; i++)
     {
-        p[i].pid = i + 1;
+        printf("\nEnter Details of Process[%d]\n", i + 1);
 
-        printf("Enter burst time for Process %d: ", p[i].pid);
-        scanf("%d", &p[i].burstTime);
+        printf("Arrival Time:");
+        scanf("%d", &arrival_time[i]);
 
-        p[i].remainingTime = p[i].burstTime;
+        printf("Burst Time:");
+        scanf("%d", &burst_time[i]);
+
+        temp[i] = burst_time[i];
     }
 
-    printf("Enter time quantum: ");
-    scanf("%d", &timeQuantum);
+    printf("\nEnter Time Quantum:\t");
+    scanf("%d", &time_quantum);
 
-    while (completed < n)
+    printf("\nProcess ID\t\tBurst Time\t Turnaround Time\t Waiting Time\n");
+
+    for(total = 0, i = 0; x != 0;)
     {
-        int done = 1;
-
-        for (int i = 0; i < n; i++)
+        if(temp[i] <= time_quantum && temp[i] > 0)
         {
-            if (p[i].remainingTime > 0)
-            {
-                done = 0;
-
-                if (p[i].remainingTime > timeQuantum)
-                {
-                    time += timeQuantum;
-                    p[i].remainingTime -= timeQuantum;
-                }
-                else
-                {
-                    time += p[i].remainingTime;
-
-                    p[i].waitingTime =
-                        time - p[i].burstTime;
-
-                    p[i].turnaroundTime =
-                        p[i].waitingTime + p[i].burstTime;
-
-                    totalWaitingTime += p[i].waitingTime;
-                    totalTurnaroundTime += p[i].turnaroundTime;
-
-                    p[i].remainingTime = 0;
-                    completed++;
-                }
-            }
+            total = total + temp[i];
+            temp[i] = 0;
+            counter = 1;
+        }
+        else if(temp[i] > 0)
+        {
+            temp[i] = temp[i] - time_quantum;
+            total = total + time_quantum;
         }
 
-        if (done)
+        if(temp[i] == 0 && counter == 1)
         {
-            break;
+            x--;
+
+            printf("\nProcess[%d]\t\t%d\t\t %d\t\t\t %d",
+                   i + 1,
+                   burst_time[i],
+                   total - arrival_time[i],
+                   total - arrival_time[i] - burst_time[i]);
+
+            wait_time = wait_time + total - arrival_time[i] - burst_time[i];
+            turnaround_time = turnaround_time + total - arrival_time[i];
+
+            counter = 0;
+        }
+
+        if(i == limit - 1)
+        {
+            i = 0;
+        }
+        else if(arrival_time[i + 1] <= total)
+        {
+            i++;
+        }
+        else
+        {
+            i = 0;
         }
     }
 
-    printf("\nRound Robin Scheduling\n");
+    average_wait_time = wait_time * 1.0 / limit;
+    average_turnaround_time = turnaround_time * 1.0 / limit;
 
-    printf("\nPID\tBurst Time\tWaiting Time\tTurnaround Time\n");
-
-    for (int i = 0; i < n; i++)
-    {
-        printf("%d\t%d\t\t%d\t\t%d\n",
-               p[i].pid,
-               p[i].burstTime,
-               p[i].waitingTime,
-               p[i].turnaroundTime);
-    }
-
-    printf("\nAverage Waiting Time = %.2f\n",
-           (float)totalWaitingTime / n);
-
-    printf("Average Turnaround Time = %.2f\n",
-           (float)totalTurnaroundTime / n);
+    printf("\nAverage Waiting Time:\t%f", average_wait_time);
+    printf("\nAvg Turnaround Time:\t%f\n", average_turnaround_time);
 
     return 0;
 }
