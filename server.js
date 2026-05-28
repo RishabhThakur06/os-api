@@ -6,9 +6,9 @@ const app = express();
 
 app.get("/", (req, res) => {
     res.send(`
-        <h1>OS Lab API</h1>
+        <h1>OS API</h1>
 
-        <h3>Available Endpoints</h3>
+        <h2>Operating System Labs</h2>
 
         <ul>
             <li>/lab/lab1</li>
@@ -22,6 +22,22 @@ app.get("/", (req, res) => {
             <li>/lab/lab8</li>
             <li>/lab/lab9</li>
         </ul>
+
+        <h2>DAA Labs</h2>
+
+        <ul>
+            <li>/labz/dijkstra</li>
+            <li>/labz/kruskal</li>
+            <li>/labz/prims</li>
+            <li>/labz/quicksort</li>
+            <li>/labz/mergesort</li>
+            <li>/labz/nqueen</li>
+            <li>/labz/topological</li>
+            <li>/labz/sumofsubsets</li>
+            <li>/labz/lcs</li>
+            <li>/labz/mcm</li>
+            <li>/labz/horsepool</li>
+        </ul>
     `);
 });
 
@@ -34,13 +50,38 @@ app.get("/lab/:name", (req, res) => {
         `${name}.c`
     );
 
-    console.log("Trying:", filePath);
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+            success: false,
+            error: "File not found"
+        });
+    }
+
+    let code = fs.readFileSync(filePath, "utf8");
+
+    code = code.replace(/\r\n/g, "\n");
+
+    res.setHeader(
+        "Content-Type",
+        "text/plain; charset=utf-8"
+    );
+
+    res.send(code);
+});
+
+app.get("/labz/:name", (req, res) => {
+    const name = req.params.name;
+
+    const filePath = path.join(
+        process.cwd(),
+        "labz",
+        `${name}.c`
+    );
 
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({
             success: false,
-            error: "File not found",
-            searched: filePath
+            error: "File not found"
         });
     }
 
@@ -59,5 +100,5 @@ app.get("/lab/:name", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`OS Lab API running on port ${PORT}`);
+    console.log(`OS API running on port ${PORT}`);
 });
